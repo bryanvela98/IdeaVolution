@@ -113,16 +113,11 @@ See `backend/README.md` for detailed API documentation.
 - [x] Real-time status updates
 - [x] Auto-escalation system
 
-**Nice-to-have (if time permits):**
+**Nice-to-have (later on):**
 
 - [ ] Advanced geo-location
 - [ ] SMS notifications
 - [ ] Analytics dashboard
 
-## 🤝 Team
-
-Built for RBC Hackathon by Team IdeaVolution
-
----
 
 **Making food distribution efficient, one delivery at a time! 🚚💨**
