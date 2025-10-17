@@ -7,16 +7,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { UtensilsCrossed, Building2, Truck, ArrowLeft, Clock, CheckCircle, AlertCircle, Loader2, Plus, Minus } from "lucide-react"
+import { UtensilsCrossed, Building2, Truck, ArrowLeft, Clock, CheckCircle, AlertCircle, Loader2, Plus, Minus, RefreshCcw } from "lucide-react"
 import { UserRole, FoodAlert, FoodItem, Driver, AlertStatus } from "@/lib/types"
 import { alertAPI, driverAPI } from "@/lib/api"
 import { socketService } from "@/lib/socket"
 import RegisterForm from "@/components/RegisterForm"
 
 export default function FoodConnectNS() {
-  // Demo mode flag - set to true to bypass authentication
-  const [isDemoMode, setIsDemoMode] = useState(false)
-  
   // Auth state
   const [selectedRole, setSelectedRole] = useState<UserRole>(null)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -61,157 +58,9 @@ export default function FoodConnectNS() {
     }
   }, [error])
 
-  // Load demo data when in demo mode
-  useEffect(() => {
-    if (isDemoMode && selectedRole && !isLoggedIn) {
-      // Simulate login for demo
-      setUserId("demo_user_123")
-      setToken("demo_token")
-      setIsLoggedIn(true)
-      
-      // Load demo data based on role
-      if (selectedRole === "restaurant") {
-        setRestaurantAlerts([
-          {
-            id: "alert_001",
-            restaurant_id: "demo_user_123",
-            food_items: [
-              { name: "Fresh Bread Loaves", quantity: 25, unit: "loaves" },
-              { name: "Garden Salad", quantity: 15, unit: "servings" }
-            ],
-            total_quantity: 40,
-            status: "pending" as AlertStatus,
-            created_at: new Date(Date.now() - 3 * 60 * 1000).toISOString(), // 3 minutes ago
-            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-            restaurant_name: "Joe's Italian Restaurant",
-            restaurant_address: "123 Main Street, Halifax, NS",
-            notes: "Fresh from lunch service"
-          },
-          {
-            id: "alert_002",
-            restaurant_id: "demo_user_123",
-            food_items: [
-              { name: "Vegetable Soup", quantity: 30, unit: "servings" }
-            ],
-            total_quantity: 30,
-            status: "foodbank_accepted" as AlertStatus,
-            created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-            restaurant_name: "Joe's Italian Restaurant",
-            restaurant_address: "123 Main Street, Halifax, NS",
-            notes: "Homemade soup"
-          }
-        ])
-      } else if (selectedRole === "foodbank") {
-        setAvailableAlerts([
-          {
-            id: "alert_003",
-            restaurant_id: "restaurant_456",
-            food_items: [
-              { name: "Sandwich Platters", quantity: 40, unit: "servings" },
-              { name: "Fresh Fruit", quantity: 20, unit: "portions" }
-            ],
-            total_quantity: 60,
-            status: "pending" as AlertStatus,
-            created_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 minutes ago
-            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-            restaurant_name: "Downtown Deli",
-            restaurant_address: "456 Spring Garden Rd, Halifax, NS",
-            notes: "Ready for immediate pickup"
-          },
-          {
-            id: "alert_004",
-            restaurant_id: "restaurant_789",
-            food_items: [
-              { name: "Baked Goods", quantity: 50, unit: "items" }
-            ],
-            total_quantity: 50,
-            status: "pending" as AlertStatus,
-            created_at: new Date(Date.now() - 7 * 60 * 1000).toISOString(), // 7 minutes ago
-            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-            restaurant_name: "Sunrise Bakery",
-            restaurant_address: "789 Barrington St, Halifax, NS",
-            notes: "End of day surplus"
-          }
-        ])
-        
-        setAcceptedAlerts([
-          {
-            id: "alert_005",
-            restaurant_id: "restaurant_111",
-            foodbank_id: "demo_user_123",
-            food_items: [
-              { name: "Prepared Meals", quantity: 35, unit: "meals" }
-            ],
-            total_quantity: 35,
-            status: "foodbank_accepted" as AlertStatus,
-            created_at: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-            restaurant_name: "The Coastal Café",
-            restaurant_address: "321 Water St, Halifax, NS"
-          }
-        ])
-        
-        setAvailableDrivers([
-          {
-            id: "driver_001",
-            name: "Mike Johnson",
-            email: "mike@example.com",
-            vehicle_type: "Cargo Van",
-            is_available: true,
-            created_at: new Date().toISOString()
-          },
-          {
-            id: "driver_002",
-            name: "Sarah Williams",
-            email: "sarah@example.com",
-            vehicle_type: "Pickup Truck",
-            is_available: true,
-            created_at: new Date().toISOString()
-          }
-        ])
-      } else if (selectedRole === "driver") {
-        setDriverAlerts([
-          {
-            id: "alert_006",
-            restaurant_id: "restaurant_222",
-            foodbank_id: "foodbank_333",
-            driver_id: "demo_user_123",
-            food_items: [
-              { name: "Hot Meals", quantity: 45, unit: "servings" }
-            ],
-            total_quantity: 45,
-            status: "driver_assigned" as AlertStatus,
-            created_at: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
-            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-            restaurant_name: "Bistro 123",
-            restaurant_address: "555 Quinpool Rd, Halifax, NS"
-          },
-          {
-            id: "alert_007",
-            restaurant_id: "restaurant_444",
-            foodbank_id: "foodbank_555",
-            driver_id: "demo_user_123",
-            food_items: [
-              { name: "Fresh Produce", quantity: 30, unit: "kg" }
-            ],
-            total_quantity: 30,
-            status: "in_transit" as AlertStatus,
-            created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
-            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-            restaurant_name: "Garden Fresh Market",
-            restaurant_address: "777 Robie St, Halifax, NS"
-          }
-        ])
-      }
-      
-      setSuccessMessage(`Demo Mode: Viewing as ${selectedRole}`)
-    }
-  }, [isDemoMode, selectedRole])
-
   // Initialize WebSocket connection on login
   useEffect(() => {
-    if (isLoggedIn && userId && selectedRole && !isDemoMode) {
+    if (isLoggedIn && userId && selectedRole) {
       // Connect to WebSocket
       socketService.connect()
 
@@ -238,8 +87,9 @@ export default function FoodConnectNS() {
 
         // Listen for delivery requests
         socketService.onDeliveryRequest((request) => {
-          console.log("🚚 New delivery request:", request)
+          console.log("🚚 New delivery request received via WebSocket:", request)
           setNotifications(prev => [...prev, "New delivery request assigned to you!"])
+          console.log("Refreshing driver alerts after delivery assignment...")
           fetchDriverAlerts()
         })
       }
@@ -350,10 +200,15 @@ export default function FoodConnectNS() {
 
   // Driver: Fetch alerts assigned to this driver
   const fetchDriverAlerts = async () => {
-    if (!token || !userId) return
+    if (!token || !userId) {
+      console.log("Cannot fetch driver alerts: missing token or userId", { token: !!token, userId })
+      return
+    }
     try {
+      console.log("Fetching driver alerts for driver:", userId)
       // Fetch alerts filtered by driver_id
       const response = await alertAPI.getAll({ driver_id: userId }, token)
+      console.log("Driver alerts fetched:", response.alerts?.length || 0, "alerts", response.alerts)
       setDriverAlerts(response.alerts || [])
     } catch (err: any) {
       console.error("Error fetching driver alerts:", err)
@@ -373,7 +228,6 @@ export default function FoodConnectNS() {
     setIsLoggedIn(false)
     setUserId(null)
     setToken(null)
-    setIsDemoMode(false)
     setRestaurantAlerts([])
     setAvailableAlerts([])
     setAcceptedAlerts([])
@@ -384,11 +238,6 @@ export default function FoodConnectNS() {
     setNotifications([])
     setError(null)
     setSuccessMessage(null)
-  }
-
-  const handleDemoMode = (role: UserRole) => {
-    setSelectedRole(role)
-    setIsDemoMode(true)
   }
 
   // Restaurant: Add food item to form
@@ -418,28 +267,6 @@ export default function FoodConnectNS() {
     const validItems = foodItems.filter(item => item.name && item.quantity > 0)
     if (validItems.length === 0) {
       setError("Please add at least one food item")
-      return
-    }
-
-    // Demo mode simulation
-    if (isDemoMode) {
-      setSuccessMessage("Demo Mode: Alert created successfully! (This would notify food banks in production)")
-      const newAlert: FoodAlert = {
-        id: `alert_demo_${Date.now()}`,
-        restaurant_id: userId,
-        food_items: validItems,
-        total_quantity: validItems.reduce((sum, item) => sum + item.quantity, 0),
-        status: "pending" as AlertStatus,
-        created_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        restaurant_name: "Joe's Italian Restaurant",
-        restaurant_address: "123 Main Street, Halifax, NS",
-        notes: alertNotes
-      }
-      setRestaurantAlerts(prev => [newAlert, ...prev])
-      setFoodItems([{ name: "", quantity: 1, unit: "servings" }])
-      setAlertNotes("")
-      setPickupTime("")
       return
     }
 
@@ -477,17 +304,6 @@ export default function FoodConnectNS() {
   const handleAcceptAlert = async (alertId: string) => {
     if (!token || !userId) return
 
-    // Demo mode simulation
-    if (isDemoMode) {
-      setSuccessMessage("Demo Mode: Alert accepted! (This would notify the restaurant in production)")
-      const acceptedAlert = availableAlerts.find(a => a.id === alertId)
-      if (acceptedAlert) {
-        setAvailableAlerts(prev => prev.filter(a => a.id !== alertId))
-        setAcceptedAlerts(prev => [{ ...acceptedAlert, status: "foodbank_accepted", foodbank_id: userId }, ...prev])
-      }
-      return
-    }
-
     setIsLoading(true)
     setError(null)
 
@@ -516,22 +332,13 @@ export default function FoodConnectNS() {
   const handleAssignDriver = async (alertId: string, driverId: string) => {
     if (!token) return
 
-    // Demo mode simulation
-    if (isDemoMode) {
-      setSuccessMessage("Demo Mode: Driver assigned! (This would notify the driver in production)")
-      setAcceptedAlerts(prev =>
-        prev.map(alert =>
-          alert.id === alertId ? { ...alert, status: "driver_assigned" as AlertStatus, driver_id: driverId } : alert
-        )
-      )
-      return
-    }
-
     setIsLoading(true)
     setError(null)
 
     try {
+      console.log("Assigning driver:", { alertId, driverId })
       await alertAPI.assignDriver(alertId, driverId, token)
+      console.log("Driver assigned successfully via API")
       
       setSuccessMessage("Driver assigned successfully!")
       
@@ -548,17 +355,6 @@ export default function FoodConnectNS() {
   // Driver: Update alert status
   const handleUpdateStatus = async (alertId: string, newStatus: string) => {
     if (!token) return
-
-    // Demo mode simulation
-    if (isDemoMode) {
-      setSuccessMessage(`Demo Mode: Status updated to ${newStatus}! (This would notify restaurant & food bank in production)`)
-      setDriverAlerts(prev =>
-        prev.map(alert =>
-          alert.id === alertId ? { ...alert, status: newStatus as AlertStatus } : alert
-        )
-      )
-      return
-    }
 
     setIsLoading(true)
     setError(null)
@@ -584,13 +380,6 @@ export default function FoodConnectNS() {
   // Driver: Toggle availability
   const handleToggleAvailability = async () => {
     if (!token || !userId) return
-
-    // Demo mode simulation
-    if (isDemoMode) {
-      setIsAvailable(!isAvailable)
-      setSuccessMessage(`Demo Mode: You are now ${!isAvailable ? 'available' : 'unavailable'}`)
-      return
-    }
 
     setIsLoading(true)
     try {
@@ -659,7 +448,7 @@ export default function FoodConnectNS() {
                 <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                   <UtensilsCrossed className="w-8 h-8 text-primary" />
                 </div>
-                <CardTitle className="text-xl">I'm a Restaurant</CardTitle>
+                <CardTitle className="text-xl">I'm a Donor</CardTitle>
                 <CardDescription className="text-base">Donate surplus food to those in need</CardDescription>
               </CardHeader>
             </Card>
@@ -690,32 +479,13 @@ export default function FoodConnectNS() {
               </CardHeader>
             </Card>
           </div>
-
-          {/* Demo Mode Section - Will be removed once backend is confirmed working */}
-          <div className="pt-8 border-t">
-            <p className="text-sm text-muted-foreground mb-4">🎭 Quick Preview (Demo Mode - No Registration)</p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              <Button variant="outline" size="sm" onClick={() => handleDemoMode("restaurant")}>
-                Preview Restaurant Dashboard
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => handleDemoMode("foodbank")}>
-                Preview Food Bank Dashboard
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => handleDemoMode("driver")}>
-                Preview Driver Dashboard
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              👆 These demo buttons will be removed once backend is confirmed working
-            </p>
-          </div>
         </div>
       </div>
     )
   }
 
-  // Login/Register Screen (skip if demo mode)
-  if (!isLoggedIn && !isDemoMode) {
+  // Login/Register Screen
+  if (!isLoggedIn) {
     return (
       <RegisterForm
         role={selectedRole}
@@ -774,13 +544,24 @@ export default function FoodConnectNS() {
         <div className="max-w-6xl mx-auto space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Restaurant Dashboard</h1>
+              <h1 className="text-3xl font-bold text-foreground">Donor Dashboard</h1>
               <p className="text-muted-foreground">Manage your food donations</p>
             </div>
-            <Button variant="outline" onClick={handleReset}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => fetchRestaurantAlerts()}
+                disabled={isLoading}
+                title="Refresh alerts"
+              >
+                <RefreshCcw className="w-4 h-4" />
+              </Button>
+              <Button variant="outline" onClick={handleReset}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
 
           <NotificationBanner />
@@ -803,16 +584,16 @@ export default function FoodConnectNS() {
 
                 {foodItems.map((item, index) => (
                   <div key={index} className="grid grid-cols-12 gap-2 items-end">
-                    <div className="col-span-5 space-y-2">
+                    <div className="col-span-10 space-y-2">
                       <Label htmlFor={`item-name-${index}`}>Item Name</Label>
                       <Input
                         id={`item-name-${index}`}
-                        placeholder="e.g., Fresh Bread"
+                        placeholder="e.g., Fresh Bread, 20 loaves"
                         value={item.name}
                         onChange={(e) => updateFoodItem(index, "name", e.target.value)}
                       />
                     </div>
-                    <div className="col-span-3 space-y-2">
+                    <div className="col-span-2 space-y-2">
                       <Label htmlFor={`item-quantity-${index}`}>Quantity</Label>
                       <Input
                         id={`item-quantity-${index}`}
@@ -822,27 +603,19 @@ export default function FoodConnectNS() {
                         onChange={(e) => updateFoodItem(index, "quantity", parseInt(e.target.value) || 1)}
                       />
                     </div>
-                    <div className="col-span-3 space-y-2">
-                      <Label htmlFor={`item-unit-${index}`}>Unit</Label>
-                      <Input
-                        id={`item-unit-${index}`}
-                        placeholder="servings"
-                        value={item.unit}
-                        onChange={(e) => updateFoodItem(index, "unit", e.target.value)}
-                      />
-                    </div>
-                    <div className="col-span-1">
-                      {foodItems.length > 1 && (
+                    {foodItems.length > 1 && (
+                      <div className="col-span-12">
                         <Button
                           onClick={() => removeFoodItem(index)}
                           variant="ghost"
-                          size="icon"
+                          size="sm"
                           className="text-red-600"
                         >
-                          <Minus className="w-4 h-4" />
+                          <Minus className="w-4 h-4 mr-2" />
+                          Remove Item
                         </Button>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -858,7 +631,7 @@ export default function FoodConnectNS() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">Notes / Description</Label>
+                <Label htmlFor="notes">Notes / Description (Optional)</Label>
                 <Textarea
                   id="notes"
                   placeholder="Additional details about the food..."
@@ -901,7 +674,7 @@ export default function FoodConnectNS() {
                         <div className="space-y-1">
                           <p className="font-semibold text-foreground">
                             {alert.food_items && alert.food_items.length > 0
-                              ? alert.food_items.map(item => `${item.quantity} ${item.unit} ${item.name}`).join(", ")
+                              ? alert.food_items.map(item => `${item.quantity}x ${item.name}`).join(", ")
                               : "Food items not available"}
                           </p>
                           <p className="text-sm text-muted-foreground">
@@ -947,10 +720,25 @@ export default function FoodConnectNS() {
               <h1 className="text-3xl font-bold text-foreground">Food Bank Dashboard</h1>
               <p className="text-muted-foreground">Browse and request available food</p>
             </div>
-            <Button variant="outline" onClick={handleReset}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={async () => {
+                  await fetchAvailableAlerts()
+                  await fetchAcceptedAlerts()
+                  await fetchAvailableDrivers()
+                }}
+                disabled={isLoading}
+                title="Refresh all data"
+              >
+                <RefreshCcw className="w-4 h-4" />
+              </Button>
+              <Button variant="outline" onClick={handleReset}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
 
           <NotificationBanner />
@@ -991,7 +779,7 @@ export default function FoodConnectNS() {
                             <ul className="text-sm text-muted-foreground list-disc list-inside">
                               {alert.food_items.map((item, index) => (
                                 <li key={index}>
-                                  {item.quantity} {item.unit} of {item.name}
+                                  {item.quantity}x {item.name}
                                 </li>
                               ))}
                             </ul>
@@ -1042,7 +830,7 @@ export default function FoodConnectNS() {
                           <p className="font-semibold">{alert.restaurant_name || "Restaurant"}</p>
                           <p className="text-sm text-muted-foreground">
                             {alert.food_items && alert.food_items.length > 0 
-                              ? alert.food_items.map(item => `${item.quantity} ${item.unit} ${item.name}`).join(", ")
+                              ? alert.food_items.map(item => `${item.quantity}x ${item.name}`).join(", ")
                               : "Food items not available"}
                           </p>
                         </div>
@@ -1100,6 +888,15 @@ export default function FoodConnectNS() {
             </div>
             <div className="flex gap-2">
               <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => fetchDriverAlerts()}
+                disabled={isLoading}
+                title="Refresh deliveries"
+              >
+                <RefreshCcw className="w-4 h-4" />
+              </Button>
+              <Button
                 variant={isAvailable ? "default" : "outline"}
                 onClick={handleToggleAvailability}
                 disabled={isLoading}
@@ -1147,7 +944,7 @@ export default function FoodConnectNS() {
                             <p className="text-foreground">
                               <span className="font-medium">Items:</span>{" "}
                               {alert.food_items && alert.food_items.length > 0
-                                ? alert.food_items.map(item => `${item.quantity} ${item.unit} ${item.name}`).join(", ")
+                                ? alert.food_items.map(item => `${item.quantity}x ${item.name}`).join(", ")
                                 : "No items listed"}
                             </p>
                           </div>

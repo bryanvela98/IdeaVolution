@@ -184,6 +184,34 @@ class NotificationService:
             # in the escalation function, so it will exit gracefully
             del self.active_timers[alert_id]
             logging.info(f"Cancelled escalation timer for alert {alert_id}")
+    
+    def notify_assigned_driver(self, alert_id, driver_id, delivery_request):
+        """Notify a specific driver that they've been assigned to a delivery"""
+        try:
+            alert = FoodAlert.get_by_id(alert_id)
+            if not alert:
+                logging.error(f"Alert {alert_id} not found for driver notification")
+                return
+            
+            notification_data = {
+                'alert_id': alert_id,
+                'alert': alert.to_dict(),
+                'delivery_request': delivery_request.to_dict() if delivery_request else {},
+                'message': 'New delivery assigned to you',
+                'estimated_duration': 30
+            }
+            
+            # Notify the specific driver
+            self.socketio.emit(
+                'delivery_request',
+                notification_data,
+                room=f'driver_{driver_id}'
+            )
+            
+            logging.info(f"Notified driver {driver_id} about assignment for alert {alert_id}")
+            
+        except Exception as e:
+            logging.error(f"Error notifying assigned driver: {str(e)}")
 
 # Global notification service instance
 notification_service = None

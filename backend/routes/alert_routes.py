@@ -177,6 +177,12 @@ def assign_driver_to_alert(alert_id):
             'estimated_duration': 30  # Default 30 minutes
         })
         
+        # Notify the driver via WebSocket
+        from services.notification_service import get_notification_service
+        notification_service = get_notification_service()
+        if notification_service:
+            notification_service.notify_assigned_driver(alert_id, driver_id, delivery_request)
+        
         return jsonify({
             'message': 'Driver assigned successfully',
             'alert': alert.to_dict(),

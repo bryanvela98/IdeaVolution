@@ -188,7 +188,7 @@ export default function RegisterForm({ role, onSuccess, onBack }: RegisterFormPr
   const getRoleTitle = () => {
     switch (role) {
       case "restaurant":
-        return "Restaurant";
+        return "Donor";
       case "foodbank":
         return "Food Bank";
       case "driver":
@@ -261,11 +261,11 @@ export default function RegisterForm({ role, onSuccess, onBack }: RegisterFormPr
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="name">{role === "driver" ? "Full Name" : "Organization Name"} *</Label>
+                <Label htmlFor="name">{role === "driver" ? "Full Name" : role === "restaurant" ? "Donor Name" : "Organization Name"} *</Label>
                 <Input
                   id="name"
                   type="text"
-                  placeholder={role === "driver" ? "John Doe" : "Your Organization"}
+                  placeholder={role === "driver" ? "John Doe" : role === "restaurant" ? "Joe's Restaurant" : "Your Organization"}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   disabled={isLoading}
