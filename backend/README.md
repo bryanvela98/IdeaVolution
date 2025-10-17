@@ -46,7 +46,7 @@ python app.py
 ### Food Alerts
 
 - `POST /api/alerts` - Create food alert
-- `GET /api/alerts` - Get all alerts (with filters)
+- `GET /api/alerts` - Get all alerts (with filters: status, restaurant_id, foodbank_id, driver_id)
 - `GET /api/alerts/{id}` - Get specific alert
 - `POST /api/alerts/{id}/accept` - Food bank accepts alert
 - `POST /api/alerts/{id}/assign-driver` - Assign driver to alert

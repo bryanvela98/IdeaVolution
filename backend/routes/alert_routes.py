@@ -54,6 +54,7 @@ def get_alerts():
         status = request.args.get('status')
         restaurant_id = request.args.get('restaurant_id')
         foodbank_id = request.args.get('foodbank_id')
+        driver_id = request.args.get('driver_id')
         
         alerts = FoodAlert.get_all()
         
@@ -64,6 +65,8 @@ def get_alerts():
             alerts = [a for a in alerts if a.restaurant_id == restaurant_id]
         if foodbank_id:
             alerts = [a for a in alerts if a.foodbank_id == foodbank_id]
+        if driver_id:
+            alerts = [a for a in alerts if a.driver_id == driver_id]
         
         return jsonify({
             'alerts': [a.to_dict() for a in alerts]

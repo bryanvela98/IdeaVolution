@@ -41,6 +41,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
+config/*.json
 build/
 develop-eggs/
 dist/

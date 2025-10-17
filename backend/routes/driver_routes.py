@@ -46,8 +46,12 @@ def get_available_drivers():
         drivers = Driver.get_all()
         available_drivers = [d for d in drivers if d.is_available and d.is_active]
         
+        logging.info(f"Total drivers: {len(drivers)}, Available: {len(available_drivers)}")
+        for driver in drivers:
+            logging.info(f"Driver {driver.name}: available={driver.is_available}, active={driver.is_active}")
+        
         return jsonify({
-            'available_drivers': [d.to_dict() for d in available_drivers]
+            'drivers': [d.to_dict() for d in available_drivers]
         }), 200
         
     except Exception as e:

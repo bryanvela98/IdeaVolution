@@ -14,6 +14,9 @@ import { socketService } from "@/lib/socket"
 import RegisterForm from "@/components/RegisterForm"
 
 export default function FoodConnectNS() {
+  // Demo mode flag - set to true to bypass authentication
+  const [isDemoMode, setIsDemoMode] = useState(false)
+  
   // Auth state
   const [selectedRole, setSelectedRole] = useState<UserRole>(null)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -58,9 +61,157 @@ export default function FoodConnectNS() {
     }
   }, [error])
 
+  // Load demo data when in demo mode
+  useEffect(() => {
+    if (isDemoMode && selectedRole && !isLoggedIn) {
+      // Simulate login for demo
+      setUserId("demo_user_123")
+      setToken("demo_token")
+      setIsLoggedIn(true)
+      
+      // Load demo data based on role
+      if (selectedRole === "restaurant") {
+        setRestaurantAlerts([
+          {
+            id: "alert_001",
+            restaurant_id: "demo_user_123",
+            food_items: [
+              { name: "Fresh Bread Loaves", quantity: 25, unit: "loaves" },
+              { name: "Garden Salad", quantity: 15, unit: "servings" }
+            ],
+            total_quantity: 40,
+            status: "pending" as AlertStatus,
+            created_at: new Date(Date.now() - 3 * 60 * 1000).toISOString(), // 3 minutes ago
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            restaurant_name: "Joe's Italian Restaurant",
+            restaurant_address: "123 Main Street, Halifax, NS",
+            notes: "Fresh from lunch service"
+          },
+          {
+            id: "alert_002",
+            restaurant_id: "demo_user_123",
+            food_items: [
+              { name: "Vegetable Soup", quantity: 30, unit: "servings" }
+            ],
+            total_quantity: 30,
+            status: "foodbank_accepted" as AlertStatus,
+            created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            restaurant_name: "Joe's Italian Restaurant",
+            restaurant_address: "123 Main Street, Halifax, NS",
+            notes: "Homemade soup"
+          }
+        ])
+      } else if (selectedRole === "foodbank") {
+        setAvailableAlerts([
+          {
+            id: "alert_003",
+            restaurant_id: "restaurant_456",
+            food_items: [
+              { name: "Sandwich Platters", quantity: 40, unit: "servings" },
+              { name: "Fresh Fruit", quantity: 20, unit: "portions" }
+            ],
+            total_quantity: 60,
+            status: "pending" as AlertStatus,
+            created_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 minutes ago
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            restaurant_name: "Downtown Deli",
+            restaurant_address: "456 Spring Garden Rd, Halifax, NS",
+            notes: "Ready for immediate pickup"
+          },
+          {
+            id: "alert_004",
+            restaurant_id: "restaurant_789",
+            food_items: [
+              { name: "Baked Goods", quantity: 50, unit: "items" }
+            ],
+            total_quantity: 50,
+            status: "pending" as AlertStatus,
+            created_at: new Date(Date.now() - 7 * 60 * 1000).toISOString(), // 7 minutes ago
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            restaurant_name: "Sunrise Bakery",
+            restaurant_address: "789 Barrington St, Halifax, NS",
+            notes: "End of day surplus"
+          }
+        ])
+        
+        setAcceptedAlerts([
+          {
+            id: "alert_005",
+            restaurant_id: "restaurant_111",
+            foodbank_id: "demo_user_123",
+            food_items: [
+              { name: "Prepared Meals", quantity: 35, unit: "meals" }
+            ],
+            total_quantity: 35,
+            status: "foodbank_accepted" as AlertStatus,
+            created_at: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            restaurant_name: "The Coastal Café",
+            restaurant_address: "321 Water St, Halifax, NS"
+          }
+        ])
+        
+        setAvailableDrivers([
+          {
+            id: "driver_001",
+            name: "Mike Johnson",
+            email: "mike@example.com",
+            vehicle_type: "Cargo Van",
+            is_available: true,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: "driver_002",
+            name: "Sarah Williams",
+            email: "sarah@example.com",
+            vehicle_type: "Pickup Truck",
+            is_available: true,
+            created_at: new Date().toISOString()
+          }
+        ])
+      } else if (selectedRole === "driver") {
+        setDriverAlerts([
+          {
+            id: "alert_006",
+            restaurant_id: "restaurant_222",
+            foodbank_id: "foodbank_333",
+            driver_id: "demo_user_123",
+            food_items: [
+              { name: "Hot Meals", quantity: 45, unit: "servings" }
+            ],
+            total_quantity: 45,
+            status: "driver_assigned" as AlertStatus,
+            created_at: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            restaurant_name: "Bistro 123",
+            restaurant_address: "555 Quinpool Rd, Halifax, NS"
+          },
+          {
+            id: "alert_007",
+            restaurant_id: "restaurant_444",
+            foodbank_id: "foodbank_555",
+            driver_id: "demo_user_123",
+            food_items: [
+              { name: "Fresh Produce", quantity: 30, unit: "kg" }
+            ],
+            total_quantity: 30,
+            status: "in_transit" as AlertStatus,
+            created_at: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            restaurant_name: "Garden Fresh Market",
+            restaurant_address: "777 Robie St, Halifax, NS"
+          }
+        ])
+      }
+      
+      setSuccessMessage(`Demo Mode: Viewing as ${selectedRole}`)
+    }
+  }, [isDemoMode, selectedRole])
+
   // Initialize WebSocket connection on login
   useEffect(() => {
-    if (isLoggedIn && userId && selectedRole) {
+    if (isLoggedIn && userId && selectedRole && !isDemoMode) {
       // Connect to WebSocket
       socketService.connect()
 
@@ -154,9 +305,10 @@ export default function FoodConnectNS() {
     if (!token || !userId) return
     try {
       const response = await alertAPI.getAll({ restaurant_id: userId }, token)
-      setRestaurantAlerts(response.alerts)
+      setRestaurantAlerts(response.alerts || [])
     } catch (err: any) {
       console.error("Error fetching restaurant alerts:", err)
+      setRestaurantAlerts([])
     }
   }
 
@@ -165,9 +317,10 @@ export default function FoodConnectNS() {
     if (!token) return
     try {
       const response = await alertAPI.getAll({ status: "pending" }, token)
-      setAvailableAlerts(response.alerts)
+      setAvailableAlerts(response.alerts || [])
     } catch (err: any) {
       console.error("Error fetching available alerts:", err)
+      setAvailableAlerts([])
     }
   }
 
@@ -176,9 +329,10 @@ export default function FoodConnectNS() {
     if (!token || !userId) return
     try {
       const response = await alertAPI.getAll({ foodbank_id: userId }, token)
-      setAcceptedAlerts(response.alerts)
+      setAcceptedAlerts(response.alerts || [])
     } catch (err: any) {
       console.error("Error fetching accepted alerts:", err)
+      setAcceptedAlerts([])
     }
   }
 
@@ -187,9 +341,10 @@ export default function FoodConnectNS() {
     if (!token) return
     try {
       const response = await driverAPI.getAvailable(token)
-      setAvailableDrivers(response.drivers)
+      setAvailableDrivers(response.drivers || [])
     } catch (err: any) {
       console.error("Error fetching available drivers:", err)
+      setAvailableDrivers([]) // Set empty array on error to prevent undefined
     }
   }
 
@@ -197,12 +352,12 @@ export default function FoodConnectNS() {
   const fetchDriverAlerts = async () => {
     if (!token || !userId) return
     try {
-      const response = await alertAPI.getAll({ restaurant_id: userId }, token)
-      // Filter alerts that have this driver assigned
-      const myAlerts = response.alerts.filter(alert => alert.driver_id === userId)
-      setDriverAlerts(myAlerts)
+      // Fetch alerts filtered by driver_id
+      const response = await alertAPI.getAll({ driver_id: userId }, token)
+      setDriverAlerts(response.alerts || [])
     } catch (err: any) {
       console.error("Error fetching driver alerts:", err)
+      setDriverAlerts([])
     }
   }
 
@@ -218,6 +373,7 @@ export default function FoodConnectNS() {
     setIsLoggedIn(false)
     setUserId(null)
     setToken(null)
+    setIsDemoMode(false)
     setRestaurantAlerts([])
     setAvailableAlerts([])
     setAcceptedAlerts([])
@@ -228,6 +384,11 @@ export default function FoodConnectNS() {
     setNotifications([])
     setError(null)
     setSuccessMessage(null)
+  }
+
+  const handleDemoMode = (role: UserRole) => {
+    setSelectedRole(role)
+    setIsDemoMode(true)
   }
 
   // Restaurant: Add food item to form
@@ -257,6 +418,28 @@ export default function FoodConnectNS() {
     const validItems = foodItems.filter(item => item.name && item.quantity > 0)
     if (validItems.length === 0) {
       setError("Please add at least one food item")
+      return
+    }
+
+    // Demo mode simulation
+    if (isDemoMode) {
+      setSuccessMessage("Demo Mode: Alert created successfully! (This would notify food banks in production)")
+      const newAlert: FoodAlert = {
+        id: `alert_demo_${Date.now()}`,
+        restaurant_id: userId,
+        food_items: validItems,
+        total_quantity: validItems.reduce((sum, item) => sum + item.quantity, 0),
+        status: "pending" as AlertStatus,
+        created_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        restaurant_name: "Joe's Italian Restaurant",
+        restaurant_address: "123 Main Street, Halifax, NS",
+        notes: alertNotes
+      }
+      setRestaurantAlerts(prev => [newAlert, ...prev])
+      setFoodItems([{ name: "", quantity: 1, unit: "servings" }])
+      setAlertNotes("")
+      setPickupTime("")
       return
     }
 
@@ -294,6 +477,17 @@ export default function FoodConnectNS() {
   const handleAcceptAlert = async (alertId: string) => {
     if (!token || !userId) return
 
+    // Demo mode simulation
+    if (isDemoMode) {
+      setSuccessMessage("Demo Mode: Alert accepted! (This would notify the restaurant in production)")
+      const acceptedAlert = availableAlerts.find(a => a.id === alertId)
+      if (acceptedAlert) {
+        setAvailableAlerts(prev => prev.filter(a => a.id !== alertId))
+        setAcceptedAlerts(prev => [{ ...acceptedAlert, status: "foodbank_accepted", foodbank_id: userId }, ...prev])
+      }
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
@@ -322,6 +516,17 @@ export default function FoodConnectNS() {
   const handleAssignDriver = async (alertId: string, driverId: string) => {
     if (!token) return
 
+    // Demo mode simulation
+    if (isDemoMode) {
+      setSuccessMessage("Demo Mode: Driver assigned! (This would notify the driver in production)")
+      setAcceptedAlerts(prev =>
+        prev.map(alert =>
+          alert.id === alertId ? { ...alert, status: "driver_assigned" as AlertStatus, driver_id: driverId } : alert
+        )
+      )
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
@@ -343,6 +548,17 @@ export default function FoodConnectNS() {
   // Driver: Update alert status
   const handleUpdateStatus = async (alertId: string, newStatus: string) => {
     if (!token) return
+
+    // Demo mode simulation
+    if (isDemoMode) {
+      setSuccessMessage(`Demo Mode: Status updated to ${newStatus}! (This would notify restaurant & food bank in production)`)
+      setDriverAlerts(prev =>
+        prev.map(alert =>
+          alert.id === alertId ? { ...alert, status: newStatus as AlertStatus } : alert
+        )
+      )
+      return
+    }
 
     setIsLoading(true)
     setError(null)
@@ -368,6 +584,13 @@ export default function FoodConnectNS() {
   // Driver: Toggle availability
   const handleToggleAvailability = async () => {
     if (!token || !userId) return
+
+    // Demo mode simulation
+    if (isDemoMode) {
+      setIsAvailable(!isAvailable)
+      setSuccessMessage(`Demo Mode: You are now ${!isAvailable ? 'available' : 'unavailable'}`)
+      return
+    }
 
     setIsLoading(true)
     try {
@@ -467,13 +690,32 @@ export default function FoodConnectNS() {
               </CardHeader>
             </Card>
           </div>
+
+          {/* Demo Mode Section - Will be removed once backend is confirmed working */}
+          <div className="pt-8 border-t">
+            <p className="text-sm text-muted-foreground mb-4">🎭 Quick Preview (Demo Mode - No Registration)</p>
+            <div className="flex flex-wrap gap-2 justify-center">
+              <Button variant="outline" size="sm" onClick={() => handleDemoMode("restaurant")}>
+                Preview Restaurant Dashboard
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => handleDemoMode("foodbank")}>
+                Preview Food Bank Dashboard
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => handleDemoMode("driver")}>
+                Preview Driver Dashboard
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              👆 These demo buttons will be removed once backend is confirmed working
+            </p>
+          </div>
         </div>
       </div>
     )
   }
 
-  // Login/Register Screen
-  if (!isLoggedIn) {
+  // Login/Register Screen (skip if demo mode)
+  if (!isLoggedIn && !isDemoMode) {
     return (
       <RegisterForm
         role={selectedRole}
@@ -658,10 +900,12 @@ export default function FoodConnectNS() {
                       <div className="flex items-start justify-between">
                         <div className="space-y-1">
                           <p className="font-semibold text-foreground">
-                            {alert.food_items.map(item => `${item.quantity} ${item.unit} ${item.name}`).join(", ")}
+                            {alert.food_items && alert.food_items.length > 0
+                              ? alert.food_items.map(item => `${item.quantity} ${item.unit} ${item.name}`).join(", ")
+                              : "Food items not available"}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            Total: {alert.total_quantity} servings
+                            Total: {alert.total_quantity || 0} servings
                           </p>
                           {alert.notes && (
                             <p className="text-sm text-muted-foreground">{alert.notes}</p>
@@ -743,15 +987,19 @@ export default function FoodConnectNS() {
                       <CardContent className="space-y-3">
                         <div className="space-y-1">
                           <p className="text-sm font-medium">Food Items:</p>
-                          <ul className="text-sm text-muted-foreground list-disc list-inside">
-                            {alert.food_items.map((item, index) => (
-                              <li key={index}>
-                                {item.quantity} {item.unit} of {item.name}
-                              </li>
-                            ))}
-                          </ul>
+                          {alert.food_items && alert.food_items.length > 0 ? (
+                            <ul className="text-sm text-muted-foreground list-disc list-inside">
+                              {alert.food_items.map((item, index) => (
+                                <li key={index}>
+                                  {item.quantity} {item.unit} of {item.name}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">No items listed</p>
+                          )}
                           <p className="text-sm font-medium pt-2">
-                            Total: {alert.total_quantity} servings
+                            Total: {alert.total_quantity || 0} servings
                           </p>
                           {alert.notes && (
                             <p className="text-sm text-muted-foreground pt-1">{alert.notes}</p>
@@ -793,7 +1041,9 @@ export default function FoodConnectNS() {
                         <div>
                           <p className="font-semibold">{alert.restaurant_name || "Restaurant"}</p>
                           <p className="text-sm text-muted-foreground">
-                            {alert.food_items.map(item => `${item.quantity} ${item.unit} ${item.name}`).join(", ")}
+                            {alert.food_items && alert.food_items.length > 0 
+                              ? alert.food_items.map(item => `${item.quantity} ${item.unit} ${item.name}`).join(", ")
+                              : "Food items not available"}
                           </p>
                         </div>
                         <Badge variant={getStatusBadgeVariant(alert.status)}>
@@ -801,7 +1051,7 @@ export default function FoodConnectNS() {
                         </Badge>
                       </div>
 
-                      {alert.status === "foodbank_accepted" && availableDrivers.length > 0 && (
+                      {alert.status === "foodbank_accepted" && availableDrivers && availableDrivers.length > 0 && (
                         <div className="space-y-2">
                           <Label>Assign Driver:</Label>
                           <div className="grid grid-cols-1 gap-2">
@@ -824,7 +1074,7 @@ export default function FoodConnectNS() {
                         </div>
                       )}
 
-                      {alert.status === "foodbank_accepted" && availableDrivers.length === 0 && (
+                      {alert.status === "foodbank_accepted" && (!availableDrivers || availableDrivers.length === 0) && (
                         <p className="text-sm text-muted-foreground">No drivers available at the moment</p>
                       )}
                     </div>
@@ -896,7 +1146,9 @@ export default function FoodConnectNS() {
                             </p>
                             <p className="text-foreground">
                               <span className="font-medium">Items:</span>{" "}
-                              {alert.food_items.map(item => `${item.quantity} ${item.unit} ${item.name}`).join(", ")}
+                              {alert.food_items && alert.food_items.length > 0
+                                ? alert.food_items.map(item => `${item.quantity} ${item.unit} ${item.name}`).join(", ")
+                                : "No items listed"}
                             </p>
                           </div>
                         </div>

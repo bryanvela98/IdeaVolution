@@ -53,37 +53,87 @@ export default function RegisterForm({ role, onSuccess, onBack }: RegisterFormPr
     setIsLoading(true);
 
     try {
-      const registerData: any = {
-        email: formData.email,
-        password: formData.password,
-        role: role,
+      // Create profile based on role using the appropriate endpoint
+      let response;
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      
+      const profileData: any = {
         name: formData.name,
+        email: formData.email,
+        phone: formData.phone || "(000) 000-0000",
         address: formData.address,
       };
 
-      if (formData.phone) {
-        registerData.phone = formData.phone;
+      if (role === "restaurant") {
+        // POST /api/restaurants
+        profileData.contact_person = formData.name;
+        response = await fetch(`${API_BASE}/restaurants`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(profileData)
+        });
+      } else if (role === "foodbank") {
+        // POST /api/foodbanks
+        profileData.contact_person = formData.name;
+        if (formData.capacity) {
+          profileData.capacity = parseInt(formData.capacity);
+        }
+        response = await fetch(`${API_BASE}/foodbanks`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(profileData)
+        });
+      } else if (role === "driver") {
+        // POST /api/drivers
+        profileData.license_number = `DL${Date.now()}`;
+        profileData.vehicle_type = formData.vehicleType || "Car";
+        response = await fetch(`${API_BASE}/drivers`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(profileData)
+        });
       }
 
-      if (role === "driver" && formData.vehicleType) {
-        registerData.vehicle_type = formData.vehicleType;
+      if (!response || !response.ok) {
+        const errorData = await response?.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to create profile');
       }
 
-      if (role === "foodbank" && formData.capacity) {
-        registerData.capacity = parseInt(formData.capacity);
-      }
-
-      const response = await authAPI.register(registerData);
+      const data = await response.json();
       
-      // Auto-login after registration
-      const loginResponse = await authAPI.login({
-        email: formData.email,
-        password: formData.password,
-      });
+      // Extract the ID from response
+      let userId;
+      if (role === "restaurant" && data.restaurant) {
+        userId = data.restaurant.id;
+      } else if (role === "foodbank" && data.foodbank) {
+        userId = data.foodbank.id;
+      } else if (role === "driver" && data.driver) {
+        userId = data.driver.id;
+      } else {
+        userId = `${role}_${Date.now()}`;
+      }
 
-      onSuccess(response.uid, loginResponse.token);
+      // Store user data in localStorage for persistence
+      const userData = {
+        uid: userId,
+        email: formData.email,
+        role: role,
+        name: formData.name,
+        address: formData.address,
+        phone: formData.phone,
+        vehicleType: formData.vehicleType,
+        capacity: formData.capacity,
+      };
+      
+      localStorage.setItem('userData', JSON.stringify(userData));
+
+      // Generate mock token (backend doesn't have auth yet)
+      const mockToken = `token_${userId}`;
+
+      // Auto-login and open dashboard
+      onSuccess(userId, mockToken);
     } catch (err: any) {
-      setError(err.message || "Registration failed. Please try again.");
+      setError(err.message || "Registration failed. Please make sure backend is running.");
     } finally {
       setIsLoading(false);
     }
@@ -100,15 +150,34 @@ export default function RegisterForm({ role, onSuccess, onBack }: RegisterFormPr
     setIsLoading(true);
 
     try {
+      // For now, check localStorage for saved user data
+      const savedUserData = localStorage.getItem('userData');
+      
+      if (savedUserData) {
+        const userData = JSON.parse(savedUserData);
+        
+        // Simple check: if email matches, allow login
+        if (userData.email === formData.email) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const mockToken = `mock_token_${Date.now()}`;
+          onSuccess(userData.uid, mockToken);
+          return;
+        }
+      }
+      
+      // If no matching user found
+      setError("No account found. Please register first.");
+      
+      // NOTE: When backend is ready, uncomment this code:
+      /*
       const response = await authAPI.login({
         email: formData.email,
         password: formData.password,
       });
 
-      // Extract uid from token or use a default
-      // In a real app, you'd decode the JWT token
       const uid = response.uid || "user_id";
       onSuccess(uid, response.token);
+      */
     } catch (err: any) {
       setError(err.message || "Login failed. Please check your credentials.");
     } finally {
