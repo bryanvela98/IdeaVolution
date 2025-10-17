@@ -2,6 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_socketio import SocketIO
 import os
+from datetime import datetime
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -39,6 +40,26 @@ def create_app():
     @app.route('/api/health')
     def health_check():
         return {'status': 'healthy', 'message': 'IdeaVolution API is running!'}
+    
+    @app.route('/api/test-firebase')
+    def test_firebase():
+        try:
+            from config.firebase_config import db
+            # Try to access Firestore
+            test_ref = db.collection('test').document('connection_test')
+            test_ref.set({'test': True, 'timestamp': datetime.now()})
+            return {'status': 'success', 'message': 'Firebase connection working!'}
+        except Exception as e:
+            return {'status': 'error', 'message': f'Firebase connection failed: {str(e)}'}, 500
+    
+    @app.route('/api/test-simple')
+    def test_simple():
+        return {
+            'status': 'success',
+            'message': 'API is working!',
+            'timestamp': datetime.now().isoformat(),
+            'note': 'This endpoint works without Firebase'
+        }
     
     return app, socketio
 
