@@ -95,7 +95,7 @@ export default function FoodConnectNS() {
       }
 
       // Listen for alert status updates (all roles)
-      socketService.onAlertStatusUpdate((data) => {
+      socketService.onAlertStatusUpdate((data: any) => {
         console.log("Alert status updated:", data)
         
         if (selectedRole === "restaurant") {
@@ -513,7 +513,7 @@ export default function FoodConnectNS() {
             >
               ×
             </button>
-          </div>
+            </div>
         ))}
       </div>
     )
@@ -557,10 +557,10 @@ export default function FoodConnectNS() {
               >
                 <RefreshCcw className="w-4 h-4" />
               </Button>
-              <Button variant="outline" onClick={handleReset}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
+            <Button variant="outline" onClick={handleReset}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
                 Logout
-              </Button>
+            </Button>
             </div>
           </div>
 
@@ -595,14 +595,14 @@ export default function FoodConnectNS() {
                     </div>
                     <div className="col-span-2 space-y-2">
                       <Label htmlFor={`item-quantity-${index}`}>Quantity</Label>
-                      <Input
+                  <Input
                         id={`item-quantity-${index}`}
                         type="number"
                         min="1"
                         value={item.quantity}
                         onChange={(e) => updateFoodItem(index, "quantity", parseInt(e.target.value) || 1)}
-                      />
-                    </div>
+                  />
+                </div>
                     {foodItems.length > 1 && (
                       <div className="col-span-12">
                         <Button
@@ -667,17 +667,17 @@ export default function FoodConnectNS() {
               ) : restaurantAlerts.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">No alerts created yet</p>
               ) : (
-                <div className="space-y-3">
+              <div className="space-y-3">
                   {restaurantAlerts.map((alert) => (
                     <div key={alert.id} className="p-4 border rounded-lg space-y-2">
                       <div className="flex items-start justify-between">
-                        <div className="space-y-1">
+                    <div className="space-y-1">
                           <p className="font-semibold text-foreground">
                             {alert.food_items && alert.food_items.length > 0
                               ? alert.food_items.map(item => `${item.quantity}x ${item.name}`).join(", ")
                               : "Food items not available"}
                           </p>
-                          <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                             Total: {alert.total_quantity || 0} servings
                           </p>
                           {alert.notes && (
@@ -699,9 +699,9 @@ export default function FoodConnectNS() {
                           )}
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
+              </div>
               )}
             </CardContent>
           </Card>
@@ -734,10 +734,10 @@ export default function FoodConnectNS() {
               >
                 <RefreshCcw className="w-4 h-4" />
               </Button>
-              <Button variant="outline" onClick={handleReset}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
+            <Button variant="outline" onClick={handleReset}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
                 Logout
-              </Button>
+            </Button>
             </div>
           </div>
 
@@ -760,8 +760,8 @@ export default function FoodConnectNS() {
                 <div className="grid md:grid-cols-2 gap-4">
                   {availableAlerts.map((alert) => (
                     <Card key={alert.id} className="border-2">
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
                           <div>
                             <CardTitle className="text-lg">{alert.restaurant_name || "Restaurant"}</CardTitle>
                             <CardDescription>{alert.restaurant_address || "Address not provided"}</CardDescription>
@@ -770,9 +770,9 @@ export default function FoodConnectNS() {
                             <Clock className="w-4 h-4" />
                             {getTimeRemaining(alert.created_at)}
                           </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
                         <div className="space-y-1">
                           <p className="text-sm font-medium">Food Items:</p>
                           {alert.food_items && alert.food_items.length > 0 ? (
@@ -792,7 +792,7 @@ export default function FoodConnectNS() {
                           {alert.notes && (
                             <p className="text-sm text-muted-foreground pt-1">{alert.notes}</p>
                           )}
-                        </div>
+                      </div>
                         <Button 
                           className="w-full" 
                           onClick={() => handleAcceptAlert(alert.id)}
@@ -806,11 +806,11 @@ export default function FoodConnectNS() {
                           ) : (
                             "Accept Alert"
                           )}
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
               )}
             </CardContent>
           </Card>
@@ -828,11 +828,11 @@ export default function FoodConnectNS() {
                       <div className="flex items-start justify-between">
                         <div>
                           <p className="font-semibold">{alert.restaurant_name || "Restaurant"}</p>
-                          <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground">
                             {alert.food_items && alert.food_items.length > 0 
                               ? alert.food_items.map(item => `${item.quantity}x ${item.name}`).join(", ")
                               : "Food items not available"}
-                          </p>
+                        </p>
                         </div>
                         <Badge variant={getStatusBadgeVariant(alert.status)}>
                           {alert.status.replace('_', ' ').toUpperCase()}
@@ -903,10 +903,10 @@ export default function FoodConnectNS() {
               >
                 {isAvailable ? "Available" : "Unavailable"}
               </Button>
-              <Button variant="outline" onClick={handleReset}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
+            <Button variant="outline" onClick={handleReset}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
                 Logout
-              </Button>
+            </Button>
             </div>
           </div>
 
@@ -929,27 +929,27 @@ export default function FoodConnectNS() {
                 <div className="space-y-4">
                   {driverAlerts.map((alert) => (
                     <div key={alert.id} className="p-4 border rounded-lg space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-2 flex-1">
-                          <div className="flex items-center gap-2">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center gap-2">
                             <span className="font-semibold text-foreground">Alert #{alert.id.slice(0, 8)}</span>
                             <Badge variant={getStatusBadgeVariant(alert.status)}>
                               {alert.status.replace('_', ' ').toUpperCase()}
-                            </Badge>
-                          </div>
-                          <div className="space-y-1 text-sm">
-                            <p className="text-foreground">
+                        </Badge>
+                      </div>
+                      <div className="space-y-1 text-sm">
+                        <p className="text-foreground">
                               <span className="font-medium">Pickup:</span> {alert.restaurant_address || "Address not provided"}
-                            </p>
-                            <p className="text-foreground">
+                        </p>
+                        <p className="text-foreground">
                               <span className="font-medium">Items:</span>{" "}
                               {alert.food_items && alert.food_items.length > 0
                                 ? alert.food_items.map(item => `${item.quantity}x ${item.name}`).join(", ")
                                 : "No items listed"}
-                            </p>
-                          </div>
-                        </div>
+                        </p>
                       </div>
+                    </div>
+                  </div>
 
                       {alert.status === "driver_assigned" && (
                         <Button
@@ -973,17 +973,17 @@ export default function FoodConnectNS() {
                       )}
 
                       {alert.status === "in_transit" && (
-                        <Button
-                          className="w-full"
+                    <Button
+                      className="w-full"
                           variant="default"
                           onClick={() => handleUpdateStatus(alert.id, "delivered")}
                           disabled={isLoading}
                         >
                           Mark as Delivered
-                        </Button>
-                      )}
-                    </div>
-                  ))}
+                    </Button>
+                  )}
+                </div>
+              ))}
                 </div>
               )}
             </CardContent>

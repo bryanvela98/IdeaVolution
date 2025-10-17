@@ -68,8 +68,42 @@ def get_alerts():
         if driver_id:
             alerts = [a for a in alerts if a.driver_id == driver_id]
         
+        # Enrich alerts with restaurant and foodbank details
+        enriched_alerts = []
+        for alert in alerts:
+            alert_dict = alert.to_dict()
+            
+            # Get restaurant details
+            if alert.restaurant_id:
+                restaurant = Restaurant.get_by_id(alert.restaurant_id)
+                if restaurant:
+                    alert_dict['restaurant_name'] = restaurant.name
+                    alert_dict['restaurant_address'] = restaurant.address
+                    alert_dict['restaurant_phone'] = restaurant.phone
+                    alert_dict['restaurant_email'] = restaurant.email
+            
+            # Get foodbank details
+            if alert.foodbank_id:
+                foodbank = FoodBank.get_by_id(alert.foodbank_id)
+                if foodbank:
+                    alert_dict['foodbank_name'] = foodbank.name
+                    alert_dict['foodbank_address'] = foodbank.address
+                    alert_dict['foodbank_phone'] = foodbank.phone
+                    alert_dict['foodbank_email'] = foodbank.email
+            
+            # Get driver details
+            if alert.driver_id:
+                driver = Driver.get_by_id(alert.driver_id)
+                if driver:
+                    alert_dict['driver_name'] = driver.name
+                    alert_dict['driver_phone'] = driver.phone
+                    alert_dict['driver_email'] = driver.email
+                    alert_dict['driver_vehicle_type'] = driver.vehicle_type
+            
+            enriched_alerts.append(alert_dict)
+        
         return jsonify({
-            'alerts': [a.to_dict() for a in alerts]
+            'alerts': enriched_alerts
         }), 200
         
     except Exception as e:
@@ -83,9 +117,39 @@ def get_alert(alert_id):
         alert = FoodAlert.get_by_id(alert_id)
         if not alert:
             return jsonify({'error': 'Alert not found'}), 404
+        
+        # Enrich alert with restaurant and foodbank details
+        alert_dict = alert.to_dict()
+        
+        # Get restaurant details
+        if alert.restaurant_id:
+            restaurant = Restaurant.get_by_id(alert.restaurant_id)
+            if restaurant:
+                alert_dict['restaurant_name'] = restaurant.name
+                alert_dict['restaurant_address'] = restaurant.address
+                alert_dict['restaurant_phone'] = restaurant.phone
+                alert_dict['restaurant_email'] = restaurant.email
+        
+        # Get foodbank details
+        if alert.foodbank_id:
+            foodbank = FoodBank.get_by_id(alert.foodbank_id)
+            if foodbank:
+                alert_dict['foodbank_name'] = foodbank.name
+                alert_dict['foodbank_address'] = foodbank.address
+                alert_dict['foodbank_phone'] = foodbank.phone
+                alert_dict['foodbank_email'] = foodbank.email
+        
+        # Get driver details
+        if alert.driver_id:
+            driver = Driver.get_by_id(alert.driver_id)
+            if driver:
+                alert_dict['driver_name'] = driver.name
+                alert_dict['driver_phone'] = driver.phone
+                alert_dict['driver_email'] = driver.email
+                alert_dict['driver_vehicle_type'] = driver.vehicle_type
             
         return jsonify({
-            'alert': alert.to_dict()
+            'alert': alert_dict
         }), 200
         
     except Exception as e:
