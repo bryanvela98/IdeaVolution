@@ -1,5 +1,6 @@
 from flask_socketio import emit, join_room, leave_room
 from models.models import FoodAlert, FoodBank, Driver, Restaurant
+from services.geocoding_service import geocoding_service
 from datetime import datetime, timedelta
 import threading
 import time
@@ -17,16 +18,44 @@ class NotificationService:
             if not alert:
                 return
             
-            # Get nearby food banks (for now, get all active ones)
-            foodbanks = FoodBank.get_all()
-            active_foodbanks = [fb for fb in foodbanks if fb.is_active]
+            # Get restaurant for address
+            restaurant = None
+            if alert.restaurant_id:
+                restaurant = Restaurant.get_by_id(alert.restaurant_id)
             
-            if not active_foodbanks:
-                logging.warning(f"No active food banks found for alert {alert_id}")
-                return
-            
-            # Notify the first (closest) food bank
-            first_foodbank = active_foodbanks[0]
+            if not restaurant or not restaurant.address:
+                logging.warning(f"No restaurant address found for alert {alert_id}")
+                # Fallback to first available food bank
+                foodbanks = FoodBank.get_all()
+                active_foodbanks = [fb for fb in foodbanks if fb.is_active]
+                if active_foodbanks:
+                    first_foodbank = active_foodbanks[0]
+                else:
+                    logging.warning(f"No active food banks found for alert {alert_id}")
+                    return
+            else:
+                # Get nearby food banks using geocoding
+                foodbanks = FoodBank.get_all()
+                active_foodbanks = [fb for fb in foodbanks if fb.is_active and fb.address]
+                
+                if not active_foodbanks:
+                    logging.warning(f"No active food banks with addresses found for alert {alert_id}")
+                    return
+                
+                # Find nearest food banks
+                nearest_foodbanks = geocoding_service.find_nearest_foodbanks(
+                    restaurant.address, 
+                    active_foodbanks, 
+                    max_results=5
+                )
+                
+                if not nearest_foodbanks:
+                    logging.warning(f"Could not find nearby food banks for alert {alert_id}")
+                    return
+                
+                # Get the closest food bank
+                first_foodbank, distance = nearest_foodbanks[0]
+                logging.info(f"Selected closest food bank {first_foodbank.id} at {distance:.2f} km distance")
             
             # Enrich alert with restaurant details
             alert_dict = alert.to_dict()
@@ -102,24 +131,45 @@ class NotificationService:
             if not alert:
                 return
             
+            # Get restaurant for address
+            restaurant = None
+            if alert.restaurant_id:
+                restaurant = Restaurant.get_by_id(alert.restaurant_id)
+            
             # Get all food banks
             foodbanks = FoodBank.get_all()
             active_foodbanks = [fb for fb in foodbanks if fb.is_active]
             
             # Find next food bank that hasn't been notified
             notified_ids = alert.notified_foodbanks or []
-            next_foodbank = None
+            available_foodbanks = [fb for fb in active_foodbanks if fb.id not in notified_ids]
             
-            for fb in active_foodbanks:
-                if fb.id not in notified_ids:
-                    next_foodbank = fb
-                    break
-            
-            if not next_foodbank:
+            if not available_foodbanks:
                 # No more food banks available, mark as expired
                 alert.update({'status': FoodAlert.STATUSES['EXPIRED']})
                 logging.warning(f"Alert {alert_id} expired - no more food banks available")
                 return
+            
+            # Use distance-based selection if restaurant address is available
+            if restaurant and restaurant.address:
+                foodbanks_with_address = [fb for fb in available_foodbanks if fb.address]
+                if foodbanks_with_address:
+                    # Find nearest available food banks
+                    nearest_foodbanks = geocoding_service.find_nearest_foodbanks(
+                        restaurant.address, 
+                        foodbanks_with_address, 
+                        max_results=len(foodbanks_with_address)
+                    )
+                    if nearest_foodbanks:
+                        next_foodbank, distance = nearest_foodbanks[0]
+                        logging.info(f"Selected next closest food bank {next_foodbank.id} at {distance:.2f} km distance")
+                    else:
+                        next_foodbank = available_foodbanks[0]
+                else:
+                    next_foodbank = available_foodbanks[0]
+            else:
+                # Fallback to first available
+                next_foodbank = available_foodbanks[0]
             
             # Enrich alert with restaurant details
             alert_dict = alert.to_dict()
