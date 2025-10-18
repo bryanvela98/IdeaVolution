@@ -46,11 +46,17 @@ python app.py
 ### Food Alerts
 
 - `POST /api/alerts` - Create food alert
-- `GET /api/alerts` - Get all alerts (with filters)
+- `GET /api/alerts` - Get all alerts (with filters: status, restaurant_id, foodbank_id, driver_id)
 - `GET /api/alerts/{id}` - Get specific alert
 - `POST /api/alerts/{id}/accept` - Food bank accepts alert
 - `POST /api/alerts/{id}/assign-driver` - Assign driver to alert
 - `PUT /api/alerts/{id}/status` - Update alert status
+
+### Utility & Geocoding
+
+- `POST /api/utility/geocode` - Convert address to coordinates
+- `POST /api/utility/distance` - Calculate distance between addresses or coordinates
+- `POST /api/utility/nearest-foodbanks` - Find nearest food banks to restaurant address
 
 ## Real-time Features (WebSocket)
 
@@ -94,9 +100,11 @@ backend/
 │   ├── restaurant_routes.py
 │   ├── foodbank_routes.py
 │   ├── driver_routes.py
-│   └── alert_routes.py
+│   ├── alert_routes.py
+│   └── utility_routes.py    # Geocoding & distance utilities
 ├── services/
-│   └── notification_service.py
+│   ├── notification_service.py  # Real-time notifications & proximity logic
+│   └── geocoding_service.py     # Address geocoding & distance calculations
 └── websocket/
     └── handlers.py       # WebSocket event handlers
 ```
@@ -107,7 +115,80 @@ backend/
 ✅ **Real-time notifications** - WebSocket integration  
 ✅ **Auto-escalation** - 10-minute timer system  
 ✅ **Firebase integration** - Firestore database  
-✅ **CORS enabled** - React frontend ready
+✅ **CORS enabled** - React frontend ready  
+✅ **Geocoding & Distance** - Address-to-coordinate conversion with proximity calculations  
+✅ **Smart Food Bank Selection** - Distance-based nearest food bank matching
+
+## Geocoding API Examples
+
+### Geocode Address
+
+```bash
+POST /api/utility/geocode
+Content-Type: application/json
+
+{
+  "address": "5511 Bloomfield St, Halifax, NS, Canada"
+}
+
+Response:
+{
+  "success": true,
+  "coordinates": {
+    "latitude": 44.659596,
+    "longitude": -63.594955
+  }
+}
+```
+
+### Calculate Distance Between Addresses
+
+```bash
+POST /api/utility/distance
+Content-Type: application/json
+
+{
+  "address1": "5511 Bloomfield St, Halifax, NS, Canada",
+  "address2": "456 Queen St, Toronto, ON, Canada"
+}
+
+Response:
+{
+  "success": true,
+  "distance_km": 1263.87,
+  "distance_miles": 785.45,
+  "coordinates1": {"latitude": 44.659596, "longitude": -63.594955},
+  "coordinates2": {"latitude": 43.648230, "longitude": -79.399458}
+}
+```
+
+### Find Nearest Food Banks
+
+```bash
+POST /api/utility/nearest-foodbanks
+Content-Type: application/json
+
+{
+  "restaurant_address": "123 Main St, Toronto, ON, Canada",
+  "max_results": 3
+}
+
+Response:
+{
+  "success": true,
+  "restaurant_address": "123 Main St, Toronto, ON, Canada",
+  "nearest_foodbanks": [
+    {
+      "id": "foodbank_id_1",
+      "name": "Toronto Food Bank",
+      "address": "456 Queen St, Toronto, ON, Canada",
+      "distance_km": 8.97,
+      "distance_miles": 5.58,
+      ...
+    }
+  ]
+}
+```
 
 ## Development
 
@@ -118,5 +199,5 @@ pip install -r requirements.txt
 # Run in development mode
 python app.py
 
-# The server will run on http://localhost:5000
+# The server will run on http://localhost:5001
 ```
