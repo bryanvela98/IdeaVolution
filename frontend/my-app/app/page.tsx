@@ -435,7 +435,7 @@ export default function FoodConnectNS() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="max-w-4xl w-full space-y-8 text-center">
           <div className="space-y-3">
-            <h1 className="text-4xl md:text-5xl font-bold text-balance text-foreground">FoodConnectNS</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-balance text-foreground">MealResQ</h1>
             <p className="text-lg md:text-xl text-muted-foreground text-balance">Reducing Waste, Feeding Nova Scotia</p>
           </div>
 
