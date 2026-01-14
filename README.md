@@ -1,4 +1,4 @@
-# IdeaVolution 🍽️ ➡️ 🏪
+# MealResQ 🍽️ ➡️ 🏪
 
 **Food Distribution Management System for RBC Hackathon**
 
@@ -102,8 +102,6 @@ See `backend/README.md` for detailed API documentation.
 - Analytics dashboard
 - Multi-language support
 - Payment integration for drivers
-
-## 🏆 Hackathon MVP Focus
 
 **Core MVP Features:**
 
